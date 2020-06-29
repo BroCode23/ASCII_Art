@@ -1,5 +1,31 @@
 from PIL import Image
-import os
+import glob
+
+def get_image_filenames(file_list):
+    stripped_paths = []
+    for item in file_list:
+        not_finished = True
+        index = len(item) - 1
+        while not_finished:
+            if item[index] == "\\":
+                not_finished = False
+            else:
+                index -= 1
+        index += 1
+        stripped_paths.append(item[index:])
+    return stripped_paths
+        
+def menu(filenames):
+    #filter_image_files(files)
+    print("\nWhich image file would you like to open?\n")
+    for index, image in enumerate(filenames):
+        print("-" + str(index) + ": " + image)
+    print()
+    choice = input("")
+    if not choice.isdigit():
+        return -1
+    else:
+        return int(choice)
 
 def print_image(grey_img, width, height):
     """Prints out the image in the console"""
@@ -27,10 +53,18 @@ def write_to_file(grey_img, width, height):
         f.write("\n")
     f.close()
 
-def ascii_art(filename, size_factor=1, inverted=False):
+def ascii_art(directory, size_factor=1, inverted=False):
     """creates a text version of an image!!!"""
+    files = glob.glob(directory + "*.jpg")
+    filenames = get_image_filenames(files)
+    index = menu(filenames)
+
+    if index == -1: #make this more forgiving
+        print("bad input!")
+        return
+
     #sets up the file for reading data
-    img = Image.open(filename)
+    img = Image.open(directory + filenames[index])
     #optionally shrinks the image to fit the terminal better
     img = img.resize((img.width // size_factor, img.height // size_factor))
     #img.show()
@@ -62,4 +96,4 @@ def ascii_art(filename, size_factor=1, inverted=False):
     img.close()
     return
 
-ascii_art(r"C:\Users\Ryan Brasseaux\Desktop\python-files\MessAround\CodingChallenges\ASCII_art\ascii-pineapple.jpg", size_factor=5, inverted=False)
+ascii_art("C:\\Users\\Ryan Brasseaux\\Desktop\\python-files\\MessAround\\CodingChallenges\\ASCII_art\\Images\\", size_factor=5, inverted=False)
