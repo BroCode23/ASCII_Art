@@ -1,7 +1,9 @@
-from PIL import Image
-import glob
+import glob # Used to read the directory and locate all image files
+from PIL import Image # Used to read the chosen image and extract each pixel
 
 def get_image_filenames(file_list):
+    """Trims all file locations into file names to be used in the interface"""
+
     stripped_paths = []
     for item in file_list:
         not_finished = True
@@ -16,45 +18,57 @@ def get_image_filenames(file_list):
     return stripped_paths
         
 def menu(filenames):
-    #filter_image_files(files)
+    """Runs a user interface which allows the user to choose the image to convert to ASCII"""
+
     print("\nWhich image file would you like to open?\n")
     for index, image in enumerate(filenames):
         print("-" + str(index) + ": " + image)
     print()
-    choice = input("")
-    if not choice.isdigit():
-        return -1
-    else:
-        return int(choice)
+    # check for good input
+    while True:
+        choice = input("")
+        while not choice.isdigit():
+            choice = input("Enter a number corresponding to the image. \n")
+        if int(choice) >= 0 and int(choice) < len(filenames):
+            break
+        else:
+            print("Number must be in range of choices.")
+    
+    return int(choice)
 
 def print_image(grey_img, width, height):
     """Prints out the image in the console"""
+
     for y in range(height):
         for x in range(width):
             #prints the value 3 times so the image isn't squashed
-            print(grey_img[y][x], end="")
-            print(grey_img[y][x], end="")
-            print(grey_img[y][x], end="")
+            print(grey_img[y][x] * 3, end="")
         print()
 
 def convert_to_ascii(bright_val, ascii_len):
     """returns the index of the ascii string that fits the brightness value"""
+
     interval = 255 / ascii_len
     return int(round(bright_val / interval)) - 1
 
 def write_to_file(grey_img, width, height):
+    """outputs the ASCII image to a file named output.txt"""
+
     f = open("output.txt", "w")
     for y in range(height):
         for x in range(width):
             #prints the value 3 times so the image isn't squashed
             f.write(grey_img[y][x] * 3)
-            #f.write(grey_img[y][x], end="")
-            #f.write(grey_img[y][x], end="")
         f.write("\n")
     f.close()
 
 def ascii_art(directory, size_factor=1, inverted=False):
-    """creates a text version of an image!!!"""
+    """
+    creates a text version of an image using ASCII characters
+        -Size factor will shrink the image by the factor
+        -inverted will change the color scheme (light to dark and vice versa)
+    """
+
     files = glob.glob(directory + "*.jpg")
     filenames = get_image_filenames(files)
     index = menu(filenames)
@@ -87,13 +101,14 @@ def ascii_art(directory, size_factor=1, inverted=False):
         if inverted:
             grey_scale_val = 255 - grey_scale_val
         #finds the corresponding ascii character
-        index = convert_to_ascii(grey_scale_val, len(ascii_chars))
+        character = convert_to_ascii(grey_scale_val, len(ascii_chars))
         #applies the ascii
-        grey_scale[y][x] = ascii_chars[index]
+        grey_scale[y][x] = ascii_chars[character]
 
     write_to_file(grey_scale, img.width, img.height)
 
     img.close()
+    print("File generation complete! open output.txt to see " + filenames[index])
     return
 
-ascii_art("C:\\Users\\Ryan Brasseaux\\Desktop\\python-files\\MessAround\\CodingChallenges\\ASCII_art\\Images\\", size_factor=5, inverted=False)
+ascii_art("C:\\Users\\Ryan Brasseaux\\Desktop\\python-files\\MessAround\\CodingChallenges\\ASCII_art\\Images\\", size_factor=3, inverted=False)
