@@ -1,4 +1,5 @@
 from PIL import Image
+import os
 
 def print_image(grey_img, width, height):
     """Prints out the image in the console"""
@@ -9,20 +10,30 @@ def print_image(grey_img, width, height):
             print(grey_img[y][x], end="")
             print(grey_img[y][x], end="")
         print()
-    return
 
 def convert_to_ascii(bright_val, ascii_len):
     """returns the index of the ascii string that fits the brightness value"""
     interval = 255 / ascii_len
     return int(round(bright_val / interval)) - 1
 
-def ascii_art(filename, size_factor = 1, inverted = False):
+def write_to_file(grey_img, width, height):
+    f = open("output.txt", "w")
+    for y in range(height):
+        for x in range(width):
+            #prints the value 3 times so the image isn't squashed
+            f.write(grey_img[y][x] * 3)
+            #f.write(grey_img[y][x], end="")
+            #f.write(grey_img[y][x], end="")
+        f.write("\n")
+    f.close()
+
+def ascii_art(filename, size_factor=1, inverted=False):
     """creates a text version of an image!!!"""
     #sets up the file for reading data
     img = Image.open(filename)
     #optionally shrinks the image to fit the terminal better
     img = img.resize((img.width // size_factor, img.height // size_factor))
-    img.show()
+    #img.show()
     img_vals = list(img.getdata())
     grey_scale = []
     ascii_chars = "`^\",:;Il!i~+_-?][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$"
@@ -46,7 +57,8 @@ def ascii_art(filename, size_factor = 1, inverted = False):
         #applies the ascii
         grey_scale[y][x] = ascii_chars[index]
 
-    print_image(grey_scale, img.width, img.height)
+    write_to_file(grey_scale, img.width, img.height)
+
     img.close()
     return
 
